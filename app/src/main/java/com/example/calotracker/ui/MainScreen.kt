@@ -51,7 +51,7 @@ fun WelcomeTextContent(onStartClick: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterVertically)
     ) {
-        // 🔁 Cambia qui il logo se hai un nome diverso (es: R.drawable.mio_logo)
+        // Cambia qui il logo se hai un nome diverso (es: R.drawable.mio_logo)
         Image(
             painter = painterResource(id = R.drawable.logo),
             contentDescription = "Logo CaloTracker",

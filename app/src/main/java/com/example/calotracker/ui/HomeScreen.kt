@@ -75,7 +75,7 @@ fun HomeScreen(navController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // 🔳 Card superiore con logo e riepilogo settimanale
+            // Card superiore con logo e riepilogo settimanale
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -114,7 +114,7 @@ fun HomeScreen(navController: NavHostController) {
                 }
             }
 
-            // 🔽 Sezione giorni della settimana con pasti
+            // Sezione giorni della settimana con pasti
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 giorni.forEachIndexed { index, giorno ->
                     val date = monday.plusDays(index.toLong())
@@ -172,7 +172,7 @@ fun HomeScreen(navController: NavHostController) {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 🔁 Pulsante per resettare i dati della settimana
+                // Pulsante per resettare i dati della settimana
                 Button(
                     onClick = {
                         viewModel.deleteMealsBetween(monday, sunday)
