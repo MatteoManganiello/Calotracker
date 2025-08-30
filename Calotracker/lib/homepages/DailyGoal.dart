@@ -35,12 +35,15 @@ class _DailyGoalPageState extends State<DailyGoalPage> {
   }
 
   void _setGoal(int v) {
-    _goal = v.clamp(_min, _max);
+    final clamped = v.clamp(_min, _max);
+    if (clamped == _goal) return;
+    _goal = clamped;
     _controller.text = _goal.toString();
     setState(() {});
   }
 
   Future<void> _save() async {
+    FocusScope.of(context).unfocus();
     final p = await SharedPreferences.getInstance();
     await p.setInt(_prefKey, _goal);
     if (!mounted) return;
@@ -66,160 +69,159 @@ class _DailyGoalPageState extends State<DailyGoalPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Imposta obiettivo giornaliero'),
         backgroundColor: _brand,
         foregroundColor: Colors.white,
+        title: const SizedBox.shrink(),
+        elevation: 0,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (_original != null)
-                Text('Obiettivo attuale: $_original kcal',
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 12),
-
-              // – [ TextField ] +
-              Row(children: [
-                IconButton.filled(
-                  onPressed: () => _setGoal(_goal - _step),
-                  style: IconButton.styleFrom(backgroundColor: _brand),
-                  icon: const Icon(Icons.remove, color: Colors.white),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(
-                      hintText: 'Es. 2000',
-                      suffixText: 'kcal',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+          child: Card(
+            elevation: 1.5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (_original != null)
+                    Text(
+                      'Obiettivo attuale: $_original kcal',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
-                    onChanged: (v) {
-                      final n = int.tryParse(v);
-                      if (n != null) _setGoal(n);
-                    },
-                    onSubmitted: (_) => canSave ? _save() : null,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton.filled(
-                  onPressed: () => _setGoal(_goal + _step),
-                  style: IconButton.styleFrom(backgroundColor: _brand),
-                  icon: const Icon(Icons.add, color: Colors.white),
-                ),
-              ]),
-
-              const SizedBox(height: 12),
-
-              // Slider
-              Slider(
-                value: _goal.toDouble(),
-                min: _min.toDouble(),
-                max: _max.toDouble(),
-                divisions: (_max - _min) ~/ _step,
-                label: '$_goal kcal',
-                activeColor: _brand,
-                onChanged: (v) => _setGoal(v.round()),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [Text('$_min'), Text('$_max')],
-              ),
-
-              const SizedBox(height: 12),
-
-              const SizedBox(height: 16),
-
-              // Card esplicativa (motivazioni calorie più alte)
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: _brand.withOpacity(0.25)),
-                ),
-                elevation: 0,
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 12),
+                  Row(
                     children: [
-                      Row(children: [
-                        Icon(Icons.info_outline, color: _brand),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'Perché questo obiettivo?',
-                          style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w700),
+                      IconButton.filled(
+                        onPressed: () => _setGoal(_goal - _step),
+                        style: IconButton.styleFrom(backgroundColor: _brand),
+                        icon: const Icon(Icons.remove, color: Colors.white),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: TextField(
+                          controller: _controller,
+                          textAlign: TextAlign.center,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          decoration: InputDecoration(
+                            hintText: 'Es. 2000',
+                            suffixText: 'kcal',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onChanged: (v) {
+                            final n = int.tryParse(v);
+                            if (n != null) _setGoal(n);
+                          },
+                          onSubmitted: (_) => canSave ? _save() : null,
                         ),
-                      ]),
-                      const SizedBox(height: 8),
-                      const Text('Motivi comuni per assumere più calorie:'),
-                      const SizedBox(height: 6),
-                      const _Bullet('Fase di aumento massa muscolare (bulk).'),
-                      const _Bullet('Allenamento intenso o giornata molto attiva.'),
-                      const _Bullet('Recupero da infortunio o malattia.'),
-                      const _Bullet('Metabolismo basale elevato.'),
-                      const _Bullet('Obiettivo di aumento peso controllato.'),
-                      const SizedBox(height: 6),
-                      const Text(
-                        'Suggerimento: distribuisci le calorie in pasti bilanciati '
-                        '(proteine, carboidrati, grassi e fibre).',
-                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton.filled(
+                        onPressed: () => _setGoal(_goal + _step),
+                        style: IconButton.styleFrom(backgroundColor: _brand),
+                        icon: const Icon(Icons.add, color: Colors.white),
                       ),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 12),
+                  Slider(
+                    value: _goal.toDouble(),
+                    min: _min.toDouble(),
+                    max: _max.toDouble(),
+                    divisions: (_max - _min) ~/ _step,
+                    label: '$_goal kcal',
+                    activeColor: _brand,
+                    onChanged: (v) => _setGoal(v.round()),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text('800'),
+                      Text('5000'),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: _brand.withOpacity(0.25)),
+                    ),
+                    elevation: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          _InfoHeader(),
+                          SizedBox(height: 8),
+                          Text('Motivi comuni per assumere più calorie:'),
+                          SizedBox(height: 6),
+                          _Bullet('Fase di aumento massa muscolare (bulk).'),
+                          _Bullet('Allenamento intenso o giornata molto attiva.'),
+                          _Bullet('Recupero da infortunio o malattia.'),
+                          _Bullet('Metabolismo basale elevato.'),
+                          _Bullet('Obiettivo di aumento peso controllato.'),
+                          SizedBox(height: 6),
+                          Text(
+                            'Suggerimento: distribuisci le calorie in pasti bilanciati (proteine, carboidrati, grassi e fibre).',
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
-
-      // CTA in basso
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: Row(children: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: () => Navigator.pop(context),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: _brand, width: 2),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                foregroundColor: _brand,
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => Navigator.pop(context),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: _brand, width: 2),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  foregroundColor: _brand,
+                ),
+                child: const Text('Annulla'),
               ),
-              child: const Text('Annulla'),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: ElevatedButton(
-              onPressed: canSave ? _save : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _brand,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: canSave ? _save : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _brand,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Salva'),
               ),
-              child: const Text('Salva'),
             ),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }
 }
 
-// Mini widget per punti elenco
 class _Bullet extends StatelessWidget {
   final String text;
   const _Bullet(this.text);
@@ -235,6 +237,24 @@ class _Bullet extends StatelessWidget {
           Expanded(child: Text(text)),
         ],
       ),
+    );
+  }
+}
+
+class _InfoHeader extends StatelessWidget {
+  const _InfoHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: const [
+        Icon(Icons.info_outline, color: _DailyGoalPageState._brand),
+        SizedBox(width: 8),
+        Text(
+          'Perché questo obiettivo?',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
+      ],
     );
   }
 }

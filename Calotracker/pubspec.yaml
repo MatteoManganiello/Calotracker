@@ -1,7 +1,7 @@
 name: calotracker
 description: "App per il monitoraggio delle calorie con immagini, video e grafici."
 
-publish_to: 'none'
+publish_to: "none"
 
 version: 1.0.0+1
 
@@ -12,6 +12,10 @@ dependencies:
   flutter:
     sdk: flutter
 
+  http: ^1.2.2
+  mobile_scanner: ^6.0.2
+  connectivity_plus: ^6.0.3
+
   # Icone stile iOS
   cupertino_icons: ^1.0.8
 
@@ -20,6 +24,8 @@ dependencies:
 
   # Plugin per riprodurre video locali
   video_player: ^2.8.1
+
+  # Preferenze locali (key-value)
   shared_preferences: ^2.5.3
 
 dev_dependencies:
